@@ -116,10 +116,12 @@ task setHttpProxyFromEnv {
         def key = e.key.toUpperCase()
         if (key in map) {
             def base = map[key]
-            def url = e.value.toURL()
-            println " - systemProp.${base}.proxy=${url.host}:${url.port}"
-            System.setProperty("${base}.proxyHost", url.host.toString())
-            System.setProperty("${base}.proxyPort", url.port.toString())
+            if(!e.value.isEmpty()){
+              def url = e.value.toURL()
+              println " - systemProp.${base}.proxy=${url.host}:${url.port}"
+              System.setProperty("${base}.proxyHost", url.host.toString())
+              System.setProperty("${base}.proxyPort", url.port.toString())
+            }
         }
     }
 }

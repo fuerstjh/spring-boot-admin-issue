@@ -1,0 +1,6 @@
+version: "3.3"
+
+services:
+  spring-boot-admin:
+    ports:
+      - 8080:8080

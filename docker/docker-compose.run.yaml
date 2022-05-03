@@ -1,0 +1,19 @@
+version: "3.3"
+
+services:
+  spring-boot-admin:
+    build: ..
+    hostname: spring-boot-admin
+    security_opt:
+      - label:disable
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - sba_client_secret=$SBA_CLIENT_SECRET
+    networks:
+      kafka:
+        aliases:
+          - spring-boot-admin
+
+networks:
+  kafka:
+    attachable: true

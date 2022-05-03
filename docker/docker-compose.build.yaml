@@ -1,0 +1,15 @@
+version: "3.3"
+
+services:
+  jar-build-no-test:
+    image: openjdk:17.0.2-jdk-slim
+    user: $CURRENT_UID
+    environment:
+      - HTTP_PROXY=$HTTP_PROXY
+      - HTTPS_PROXY=$HTTPS_PROXY
+    security_opt:
+      - label:disable
+    working_dir: /opt/build
+    volumes:
+      - "../:/opt/build/"
+    command: "./gradlew clean build --rerun-tasks --info -x test"

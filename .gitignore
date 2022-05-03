@@ -1,0 +1,80 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.dex
+ 
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.rar
+*.tar
+*.zip
+*.jar
+*.war
+*.ear
+
+
+# Logs and databases #
+######################
+*.log
+*.sqlite
+ 
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+ 
+# IDE files #
+#############
+*xcuserdata*
+gen/
+out/
+bin/
+releases/
+.idea/
+.gradle/
+.metadata/
+.settings/
+*.iml
+jasmine*
+Jasmine*
+build/
+src/main/java/**/target/
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Ignore .githooks directory.  Changes to hooks will require force adds
+.githooks
+
+# We pick windows or unix at build time so ignore the resulting file
+!gradle/wrapper/gradle-wrapper.jar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+.terraform/
+localdb
+
+#Files that get created during testing
+docker/nginx.conf
+docker/package-lock.json
+docker/node_modules

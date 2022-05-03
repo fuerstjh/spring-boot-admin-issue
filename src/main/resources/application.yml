@@ -1,0 +1,103 @@
+spring:
+  profiles:
+    active:
+      - local
+
+  application:
+    name: spring-boot-admin-sample-issue
+  boot:
+    admin:
+      metadata-keys-to-sanitize: #Only impacts SBA, not the servers it inventories, they have similar properties under management.endpoint.env.keys-to-sanitize
+        - .*password.*
+        - .*pass$
+        - .*id.*
+        - .*secret.*
+        - .*key.*
+        - .*$token$
+        - .*credential.*
+        - .*certificate.*
+        - .*vcap_services$
+  cloud:
+    bootstrap:
+      enabled: true
+
+logging:
+  level:
+    ROOT: INFO
+server:
+  shutdown: graceful
+  tomcat:
+    accesslog:
+      enabled: true
+      pattern: combined
+      directory: ${TOMCAT_LOG_DIR:logs}
+      request-attributes-enabled: true
+    use-relative-redirects: true
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: health, env, sessions, jolokia, caches, prometheus, metrics, threaddump, auditevents, beans, conditions, info, loggers, mappings, scheduledtasks, logfile
+        exclude: refresh, heapdump, restart, pause, resume, httptrace, httpstrace, configprops, shutdown, features
+  endpoint:
+    env:
+      keys-to-sanitize:
+        - .*password.*
+        - .*pass$
+        - .*id.*
+        - .*secret.*
+        - .*key.*
+        - .*token.*
+        - .*credential.*
+        - .*certificate.*
+        - .*vcap_services$
+        - .*tweak.*
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+    logfile:
+      enabled: true
+      external-file: /tmp/spring.log
+    loggers:
+      enabled: true
+    jolokia:
+      config:
+        debug: true
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+  metrics:
+    export.prometheus.enabled: true
+  health:
+    vault.enabled: false
+info:
+  application-name: ${spring.application.name}
+  active-profiles: ${spring.profiles.active:Unknown}
+  image.version: ${DOCKER_IMAGE_TAG:local}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  boot:
+    admin:
+      ui:
+        public-url: ${${spring.application.name}-public-url:http://localhost:8080}
+        cache:
+          no-cache: true
+        cache-templates: false
+        available-languages: en, -BR, fr
+  security:
+    user:
+      name: admin
+      password: admin

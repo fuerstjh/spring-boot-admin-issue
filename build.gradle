@@ -1,0 +1,127 @@
+plugins {
+    id 'org.springframework.boot' version "${spring_boot_version}"
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id "com.diffplug.spotless" version "6.0.4"
+    id 'jacoco'
+}
+
+group = 'com.test'
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
+
+configurations.all {
+    resolutionStrategy {
+        //need to bump it past Boot's 2.6.1's version due to BlackDuck vuln: BDSA-2018-5235
+        force("org.bouncycastle:bcpkix-jdk15on:${bouncycastle_version}",
+                "org.bouncycastle:bcpkix-jdk15to18:${bouncycastle_version}",
+                "org.bouncycastle:bcprov-jdk15on:${bouncycastle_version}",
+                "org.bouncycastle:bcprov-jdk15to18:${bouncycastle_version}",
+                "org.bouncycastle:bctls-jdk15to18:${bouncycastle_version}"
+        )
+    }
+}
+
+jacocoTestReport{
+    reports {
+        xml.enabled true
+    }
+}
+
+spotless {
+    java {
+        googleJavaFormat('1.13.0')
+    }
+    compileJava.dependsOn 'spotlessApply'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring_cloud_version}"
+    }
+}
+
+dependencies {
+    //Required core dependencies
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'org.springframework.plugin:spring-plugin-core:2.0.0.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+    implementation 'com.amazonaws:aws-java-sdk-core:1.12.137'
+
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    runtimeOnly 'ch.qos.logback.contrib:logback-json-classic:0.1.5'
+    runtimeOnly 'ch.qos.logback.contrib:logback-jackson:0.1.5'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'de.codecentric:spring-boot-admin-starter-server:2.6.6'
+    implementation 'de.codecentric:spring-boot-admin-server-ui-login:1.5.7'
+
+    //Test dependencies
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine')
+    testImplementation('org.junit.jupiter:junit-jupiter-api')
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'io.jsonwebtoken:jjwt:0.9.1'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+configurations {
+    testCompile.extendsFrom compileOnly
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring_cloud_version}"
+    }
+}
+
+test {
+    // SslClientConfigurationTest requires reflection operations which are now prohibited by default, need to open/allow access
+    jvmArgs '--add-opens=java.base/javax.net.ssl=ALL-UNNAMED','--add-opens=java.base/sun.security.ssl=ALL-UNNAMED'
+    useJUnitPlatform()
+}
+
+task setHttpProxyFromEnv {
+    def map = ['HTTP_PROXY': 'http', 'HTTPS_PROXY': 'https']
+    for (e in System.getenv()) {
+        def key = e.key.toUpperCase()
+        if (key in map) {
+            def base = map[key]
+            def url = e.value.toURL()
+            println " - systemProp.${base}.proxy=${url.host}:${url.port}"
+            System.setProperty("${base}.proxyHost", url.host.toString())
+            System.setProperty("${base}.proxyPort", url.port.toString())
+        }
+    }
+}
+
+build.dependsOn setHttpProxyFromEnv
